@@ -13,3 +13,9 @@ https://youtu.be/5cEZ2q6OF34
 This is done by Yonsei University 'ELEMENTARY STATISTICS FOR INDUSTRIAL ENGINEERING (IIE2109.01-00)' final project.
 2022.06.05
 https://youtu.be/yQjX90qal7M
+
+
+
+
+# 3. Edited 2022.07.15
+https://youtu.be/yQjX90qal7M
