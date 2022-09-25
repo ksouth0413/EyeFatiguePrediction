@@ -1,0 +1,77 @@
+import pickle
+import gzip
+import numpy as np
+import csv
+
+
+
+
+# 1. 일단 1개에 대해 되는 걸 확인해보자!
+m = 10 # 10번째 데이터
+url1 = '/Users/namhunkim/Downloads/fatigue_data/SubjectC/raw_data/data' + str(m) + '.txt'
+with gzip.open(url1, 'rb') as f:
+    raw_data = pickle.load(f)
+
+print('key of raw data :', raw_data.keys())
+# 여러 데이터를 가공해서 저장하지만, 우리가 확인할 데이터는 'RD_Dict1' 데이터이다.
+
+data = raw_data['RD_Dict1']
+print('key of data :', data.keys(), '\n')
+# key값이 0.3이란?
+# 양 눈의 깜빡임 지표가 모두 0.3이하일 때, 1로 저장.
+# 하나라도 0.3을 넘어가면 0으로 저장된 리스트
+# 즉, 왼쪽 눈의 깜빡임 지표가 0.1이고 오른쪽이 0.2이면 둘 다 0.3이하임으로 1로 저장된다.
+
+# 데이터 측정 시간
+print('range of data collecting time :', raw_data['FT'] - raw_data['ST'], '\n')
+
+# 총 데이터 수
+print('N : ', raw_data['N'])  # 얼굴/눈이 인식되었을 때, 눈을 몇 번 측정하였는가?
+print('length of data[0.1] : ', len(data[0.1]))  # 얼굴/눈이 인식되었을 때, "1초간격"으로 눈을 몇 번 측정하였는가?
+print('length of data[0.3] : ', len(data[0.3]),
+      '\n')  # 데이터를 10분동안 측정하지만, 눈이 인식되었을 때마다 1초간격으로 측정함으로 10*60보다 더 데이터 수가 적다.
+# 보통적으로 절반인 300개 수준인 것 같다.
+
+np_data = np.array(list(data.values()))
+print('-' * 100)
+print(np_data)
+print(np_data.shape, '\n')
+
+print('-' * 100)
+n = len(data[0.1])
+main_data = np.zeros(n)
+for i in range(n):
+    main_data[i] = np.where(np_data[:, i] == 1)[0][0] / 10  # 제일 처음으로 0이 나온
+print(main_data)
+print(main_data.shape)
+
+
+
+
+# 2. 모든 데이터에 대해 수행하여 csv로 저장해보자.
+start = 1
+end = 90
+
+url2 = '/Users/namhunkim/Downloads/fatigue_data/SubjectC/BlinkC.csv'
+with open(url2, 'w', newline='\n') as g:
+    G = csv.writer(g)
+    G.writerow(['index'] + [' ']*n)
+
+# 본격적으로 내용을 저장
+for m in range(start, end+1):
+    url1 = '/Users/namhunkim/Downloads/fatigue_data/SubjectC/raw_data/data' + str(m) + '.txt'
+    with gzip.open(url1, 'rb') as f:
+        raw_data = pickle.load(f)
+
+    data = raw_data['RD_Dict1']
+    np_data = np.array(list(data.values()))
+
+    n = len(data[0.1])
+    main_data = np.zeros(n+1)
+    main_data[0] = m
+    for i in range(n):
+        main_data[i+1] = np.where(np_data[:, i] == 1)[0][0] / 10 # 제일 처음으로 0이 나온
+
+    with open(url2, 'a', newline='\n') as g:
+        G = csv.writer(g)
+        G.writerow(main_data)
